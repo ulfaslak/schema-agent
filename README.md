@@ -2,7 +2,10 @@
 
 Practical, robust structured generation for LLMs using Pydantic schemas. Provide a schema, a prompt, and a model; get back a validated `BaseModel` instance with automatic retries when validation fails.
 
+<img width="500" height="385" alt="Screenshot 2025-09-22 at 13 24 17" src="https://github.com/user-attachments/assets/c4d417a9-3d2a-4743-a76b-f1bbb7f5671b" />
+
 ## Features
+
 
 - Schema-first: define your output as a Pydantic model
 - Automatic retries: validates via a tool call and re-prompts on failure
