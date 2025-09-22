@@ -33,7 +33,7 @@ def generate_with_schema(
         validation_callback: An optional callback function that is called with the output. Must
             raise an exception if the output is invalid. Can for example be used to check the
             generated output against the input data, to ensure extractions are not hallucinated.
-            
+
     Returns:
         RetryAgentResponse
     """

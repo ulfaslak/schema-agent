@@ -2,6 +2,8 @@
 
 Practical, robust structured generation for LLMs using Pydantic schemas. Provide a schema, a prompt, and a model; get back a validated `BaseModel` instance with automatic retries when validation fails.
 
+*Note: This is minimalist experimental package, and it does nearly the same as [Instructor](https://github.com/567-labs/instructor), with some slight differences in implementation design. However, if you need this for production, I recommend using Instructor.*
+
 ## Features
 
 - Schema-first: define your output as a Pydantic model
@@ -55,6 +57,29 @@ resp = generate_with_schema(
     llm=llm,
     schema=Person,
     max_retries=2,
+)
+```
+
+With a validation callback (example that extracts a phone number from a large text):
+
+```python
+def validate_output(x: str | dict) -> None:
+    if x["name"] != "John Doe":
+        raise ValueError("Name is not John Doe")
+
+class PhoneNumber(BaseModel):
+    phone_number: str = Field(description="Phone number")
+
+def check_phone_number_in_data(x: str | dict) -> None:
+    if x["phone_number"] not in large_text:
+        raise ValueError("Extracted attribute 'phone_number' not found in data")
+
+resp = generate_with_schema(
+    user_prompt=large_text,  # large text that contains a phone number
+    llm=llm,
+    schema=Person,
+    max_retries=2,
+    validation_callback=check_phone_number_in_data,
 )
 ```
 
