@@ -1,13 +1,38 @@
 [project]
-authors = [{name = "pymc-labs", email = "info@pymc-labs.com"}]
-dependencies = []
-description = "Add a short description here"
-name = "package_name"
+authors = [{ name = "ulfaslak", email = "ulfaslak@gmail.com" }]
+dependencies = [
+  "pydantic>=2",
+  "langgraph<0.4.0",
+  "langchain-core>=0.3.25,<0.4",
+]
+description = "Practical, robust structured generation with retries using Pydantic schemas"
+readme = { file = "README.md", content-type = "text/markdown" }
+name = "schema_agent"
 requires-python = ">= 3.11"
 version = "0.1.0"
+license = { file = "LICENSE" }
+keywords = ["pydantic", "langgraph", "langchain", "structured-generation", "llm"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/pymc-labs/schema-agent"
+Repository = "https://github.com/pymc-labs/schema-agent"
+Issues = "https://github.com/pymc-labs/schema-agent/issues"
 
 [project.optional-dependencies]
 test = ["pytest"]
+openai = [
+  "langchain-openai>=0.3.33,<0.4",
+  "python-dotenv>=1",
+]
 
 [build-system]
 build-backend = "hatchling.build"
@@ -18,7 +43,7 @@ channels = ["conda-forge"]
 platforms = ["osx-arm64", "linux-64", "osx-64"]
 
 [tool.pixi.pypi-dependencies]
-package_name = { path = ".", editable = true }
+schema_agent = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
 pandas = "*"
@@ -27,13 +52,21 @@ ruff = "*"
 ipykernel = "*"
 python-dotenv = "*"
 pre-commit = "*"
-beartype = "*"
-pymc = "*"
+pydantic = ">=2"
+langgraph = "<0.4.0"
+langchain = ">=0.3.25,<0.4"
+langchain-openai = ">=0.3.33,<0.4"
+python-build = "*"
+
 
 [tool.pixi.environments]
 default = { features = ["test"], solve-group = "default" }
 test = { features = ["test"], solve-group = "default" }
 minimal = { features = [], solve-group = "default" }
+
+[tool.pixi.tasks]
+demo = "python -m notebooks.demo"
+build = "python -m build"
 
 [tool.pixi.feature.test.tasks]
 test = "pytest"
