@@ -4,7 +4,11 @@ Practical, robust structured generation for LLMs using Pydantic schemas. Provide
 
 *Note: This is minimalist experimental package, and it does nearly the same as [Instructor](https://github.com/567-labs/instructor), with some slight differences in implementation design. However, if you need this for production, I recommend using Instructor.*
 
+<img width="500" height="385" alt="Screenshot 2025-09-22 at 13 24 17" src="https://github.com/user-attachments/assets/c4d417a9-3d2a-4743-a76b-f1bbb7f5671b" />
+
+
 ## Features
+
 
 - Schema-first: define your output as a Pydantic model
 - Automatic retries: validates via a tool call and re-prompts on failure
