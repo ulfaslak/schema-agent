@@ -1,4 +1,5 @@
 import json
+from typing import Callable
 
 from langchain_core.language_models import LanguageModelLike
 from langchain_core.messages import ToolMessage
@@ -18,6 +19,7 @@ def generate_with_schema(
     llm: str | LanguageModelLike,
     schema: type[BaseModel],
     max_retries: int = 2,
+    validation_callback: Callable[[str | dict], str] | None = None,
 ) -> RetryAgentResponse:
     """Generate output matching schema. Retries upon failure.
 
@@ -28,15 +30,26 @@ def generate_with_schema(
             automatically, assuming a valid LLM provider API key is set as a environment variable.
         schema: Pydantic schema that output should match.
         max_retries: The maximum number of times the agent will retry matching the schema.
-
+        validation_callback: An optional callback function that is called with the output. Must
+            raise an exception if the output is invalid. Can for example be used to check the
+            generated output against the input data, to ensure extractions are not hallucinated.
+            
     Returns:
         RetryAgentResponse
     """
+
+    def _validate_output_callback(x: str | dict) -> str:
+        if validation_callback:
+            try:
+                validation_callback(x)
+            except Exception as e:
+                raise ModelOutputError(f"{e}. {RETRY_SIGNAL}") from e
 
     def _validate_output(x: str | dict) -> str:
         try:
             x = x if isinstance(x, dict) else json.loads(x)
             schema.model_validate(x)
+            _validate_output_callback(x)
             return json.dumps(x)
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON: {x}. {RETRY_SIGNAL}") from e
