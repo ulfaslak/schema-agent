@@ -9,7 +9,7 @@ description = "Practical, robust structured generation with retries using Pydant
 readme = { file = "README.md", content-type = "text/markdown" }
 name = "schema_agent"
 requires-python = ">= 3.11"
-version = "0.1.0"
+version = "0.1.1"
 license = { file = "LICENSE" }
 keywords = ["pydantic", "langgraph", "langchain", "structured-generation", "llm"]
 classifiers = [
@@ -67,6 +67,7 @@ minimal = { features = [], solve-group = "default" }
 [tool.pixi.tasks]
 demo = "python -m notebooks.demo"
 build = "python -m build"
+python = "python"
 
 [tool.pixi.feature.test.tasks]
 test = "pytest"
