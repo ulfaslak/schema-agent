@@ -9,7 +9,7 @@ description = "Practical, robust structured generation with retries using Pydant
 readme = { file = "README.md", content-type = "text/markdown" }
 name = "schema_agent"
 requires-python = ">= 3.11"
-version = "0.1.1"
+version = "0.1.2"
 license = { file = "LICENSE" }
 keywords = ["pydantic", "langgraph", "langchain", "structured-generation", "llm"]
 classifiers = [

@@ -15,20 +15,26 @@ from .str import schema_to_example
 
 
 def generate_with_schema(
-    user_prompt: str,
     llm: str | LanguageModelLike,
     schema: type[BaseModel],
+    user_prompt: str | None = None,
+    messages: list[tuple[str, str]] | None = None,
     max_retries: int = 2,
     validation_callback: Callable[[str | dict], str] | None = None,
 ) -> RetryAgentResponse:
     """Generate output matching schema. Retries upon failure.
 
     Args:
-        user_prompt: The user prompt to the agent
         llm: The LLM to use. Either a string or a `LanguageModelLike` object such as `OpenAI`, or
             a string like "openai:gpt-4o-mini". In the latter case, the model will be loaded
             automatically, assuming a valid LLM provider API key is set as a environment variable.
         schema: Pydantic schema that output should match.
+        user_prompt: The user prompt to the agent. Passing the user_prompt, leverages the default
+            system prompt, which informs the LLM about the task and the schema. If `None`, `messages`
+            must be provided.
+        messages: The messages to the agent. Gets passed directly to the agent, and is useful to e.g.
+            embed chat history into the messages that the LLM will see before generating a structured
+            output. If `None`, `user_prompt` must be provided.
         max_retries: The maximum number of times the agent will retry matching the schema.
         validation_callback: An optional callback function that is called with the output. Must
             raise an exception if the output is invalid. Can for example be used to check the
@@ -37,6 +43,14 @@ def generate_with_schema(
     Returns:
         RetryAgentResponse
     """
+
+    def _check_user_prompt_and_messages(
+        user_prompt: str | None, messages: list[tuple[str, str]] | None
+    ) -> None:
+        if user_prompt is None and messages is None:
+            raise ValueError("Either user_prompt or messages must be provided")
+        if user_prompt is not None and messages is not None:
+            raise ValueError("Only one of user_prompt or messages must be provided")
 
     def _validate_output_callback(x: str | dict) -> str:
         if validation_callback:
@@ -56,6 +70,8 @@ def generate_with_schema(
         except ValidationError as e:
             raise ModelOutputError(f"{e}. {RETRY_SIGNAL}") from e
 
+    _check_user_prompt_and_messages(user_prompt, messages)
+
     agent = create_react_agent(
         model=llm,
         tools=[
@@ -68,15 +84,16 @@ def generate_with_schema(
         interrupt_after=["tools"],
     )
 
-    messages = [
-        (
-            "system",
-            SYSTEM_PROMPT.format(
-                schema=schema_to_example(schema), RETRY_SIGNAL=RETRY_SIGNAL
+    if user_prompt:
+        messages = [
+            (
+                "system",
+                SYSTEM_PROMPT.format(
+                    schema=schema_to_example(schema), RETRY_SIGNAL=RETRY_SIGNAL
+                ),
             ),
-        ),
-        ("user", user_prompt),
-    ]
+            ("user", user_prompt),
+        ]
 
     for retry_count in range(max_retries + 1):  # noqa: B007
         response = agent.invoke({"messages": messages})
