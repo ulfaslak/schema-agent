@@ -24,7 +24,7 @@ def main() -> None:
         max_retries=2,
     )
     print(f"Success: {resp['success']} after {resp['retries']} retries")
-    print(resp["reply"])  # full message trace from the agent
+    print(resp["output"].model_dump_json(indent=2))  # full message trace from the agent
 
 
 if __name__ == "__main__":

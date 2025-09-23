@@ -5,6 +5,6 @@ from pydantic import BaseModel
 
 class RetryAgentResponse(TypedDict):
     response: dict
-    reply: BaseModel
+    output: BaseModel
     success: bool
     retries: int

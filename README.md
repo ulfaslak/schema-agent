@@ -44,7 +44,7 @@ resp = generate_with_schema(
 )
 
 # Validated Pydantic instance
-print(resp["reply"])        # -> Person(name='John Doe', age=42)
+print(resp["output"])        # -> Person(name='John Doe', age=42)
 print(resp["success"])      # -> True/False
 print(resp["retries"])      # -> number of retries performed
 ```

@@ -9,8 +9,8 @@ class DummyModel(BaseModel):
 def test_retry_agent_response_typed_dict_keys():
     resp: RetryAgentResponse = {
         "response": {},
-        "reply": DummyModel(),
+        "output": DummyModel(),
         "success": True,
         "retries": 1,
     }
-    assert set(resp.keys()) == {"response", "reply", "success", "retries"}
+    assert set(resp.keys()) == {"response", "output", "success", "retries"}

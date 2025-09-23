@@ -102,7 +102,7 @@ def generate_with_schema(
 
     return RetryAgentResponse(
         response=response,
-        reply=schema(
+        output=schema(
             **json.loads(
                 get_last_item_of_type(response["messages"], ToolMessage).content
             )
