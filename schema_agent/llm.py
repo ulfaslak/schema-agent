@@ -2,7 +2,7 @@ import json
 from typing import Callable
 
 from langchain_core.language_models import LanguageModelLike
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import ToolMessage, AIMessage
 from langchain_core.tools import Tool
 from langgraph.prebuilt import create_react_agent
 from pydantic import BaseModel, ValidationError
@@ -16,7 +16,7 @@ from .str import schema_to_example
 
 def generate_with_schema(
     llm: str | LanguageModelLike,
-    schema: type[BaseModel],
+    schema: type[BaseModel] | None = None,
     user_prompt: str | None = None,
     messages: list[tuple[str, str]] | None = None,
     max_retries: int = 2,
@@ -28,7 +28,8 @@ def generate_with_schema(
         llm: The LLM to use. Either a string or a `LanguageModelLike` object such as `OpenAI`, or
             a string like "openai:gpt-4o-mini". In the latter case, the model will be loaded
             automatically, assuming a valid LLM provider API key is set as a environment variable.
-        schema: Pydantic schema that output should match.
+        schema: Pydantic schema that output should match. If `None`, the schema is not used, and
+            the LLM is free to generate any output.
         user_prompt: The user prompt to the agent. Passing the user_prompt, leverages the default
             system prompt, which informs the LLM about the task and the schema. If `None`, `messages`
             must be provided.
@@ -80,7 +81,9 @@ def generate_with_schema(
                 description="Validate the generated output is valid JSON and matches the given schema.",
                 func=_validate_output,
             )
-        ],
+        ]
+        if schema
+        else [],
         interrupt_after=["tools"],
     )
 
@@ -121,7 +124,9 @@ def generate_with_schema(
         response=response,
         output=schema(
             **json.loads(
-                get_last_item_of_type(response["messages"], ToolMessage).content
+                get_last_item_of_type(
+                    response["messages"], (ToolMessage if schema else AIMessage)
+                ).content
             )
         ),
         success=not failed,
