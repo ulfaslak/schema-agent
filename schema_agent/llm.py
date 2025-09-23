@@ -73,18 +73,20 @@ def generate_with_schema(
 
     _check_user_prompt_and_messages(user_prompt, messages)
 
-    agent = create_react_agent(
-        model=llm,
-        tools=[
-            Tool(
-                name="validate_output",
-                description="Validate the generated output is valid JSON and matches the given schema.",
-                func=_validate_output,
-            )
-        ]
+    agent = (
+        create_react_agent(
+            model=llm,
+            tools=[
+                Tool(
+                    name="validate_output",
+                    description="Validate the generated output is valid JSON and matches the given schema.",
+                    func=_validate_output,
+                )
+            ],
+            interrupt_after=["tools"],
+        )
         if schema
-        else [],
-        interrupt_after=["tools"],
+        else create_react_agent(model=llm)
     )
 
     if user_prompt:
